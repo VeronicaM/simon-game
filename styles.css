@@ -1,0 +1,58 @@
+#b1 {
+    background-color: green;
+}
+
+#b2 {
+    background-color: #a21111;
+    transform: rotateY(180deg);
+}
+
+#b3 {
+    background-color: #b1b108;
+    transform: rotateX(180deg);
+}
+
+#b4 {
+    background-color: #060654;
+    transform: rotate3d(0, 1, -30, 180deg);
+}
+
+.block {
+    width: 150px;
+    height: 150px;
+    border-radius: 100% 0 0 0;
+    margin: 10px;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 90vh;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: 50%;
+    background-color: #3a3a3a;
+    width: 350px;
+    height: 350px;
+    padding: 24px;
+}
+
+.controls {
+    align-self: baseline;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: auto;
+}
+
+#start {
+    margin-top: 10px;
+}
+
+.cursor {
+    cursor: pointer;
+}

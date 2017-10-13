@@ -1,3 +1,8 @@
+body {
+    background-image: url('./images/background.jpg');
+    background-size: cover;
+}
+
 #b1 {
     background-color: green;
 }
@@ -36,17 +41,23 @@ body {
     flex-wrap: wrap;
     border-radius: 50%;
     background-color: #3a3a3a;
+    min-width: 350px;
+    min-height: 350px;
     width: 350px;
     height: 350px;
     padding: 24px;
 }
 
 .controls {
+    padding: 10px;
     align-self: baseline;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     height: auto;
+    background-color: white;
+    font-size: 18px;
+    margin-top: 10px;
 }
 
 #start {

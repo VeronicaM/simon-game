@@ -6,6 +6,7 @@
     var index = 0;
     var play = 0;
     var interval = 0;
+    var restartGame = false;
 
     function playSequence() {
         index = 0;
@@ -44,16 +45,20 @@
         if (allowClick) {
             var stepId = $(this)[0].attributes.id.value.charAt(1);
             playStep(stepId);
-            allowClick = false;
+            deactivateBoard();
             setTimeout(function(stepId) {
                 cleanStep(stepId);
                 //check if the clicked button matches the right position in the sequence
                 if (!isStepOk(stepId)) {
                     //if it doesn't, replay sequence
-                    deactivateBoard();
                     playFail();
-                    order = 0;
-                    playSequence();
+                    if (restartGame) {
+                        restart();
+                    } else {
+                        deactivateBoard();
+                        order = 0;
+                        playSequence();
+                    }
                 } else {
                     $("#message").text("");
                     //if it does, increase position in sequence and continue as before
@@ -69,6 +74,13 @@
                 }
             }.bind(null, stepId), 600);
 
+        }
+    });
+    $('#strict').change(function() {
+        if ($(this).is(":checked")) {
+            restartGame = true;
+        } else {
+            restartGame = false;
         }
     });
     $("#start").on("click", function(e) {

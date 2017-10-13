@@ -7,6 +7,7 @@
     var play = 0;
     var interval = 0;
     var restartGame = false;
+    var WIN_CONDITION = 20;
 
     function playSequence() {
         index = 0;
@@ -44,38 +45,23 @@
     $(".block").on("click", function(e) {
         if (allowClick) {
             var stepId = $(this)[0].attributes.id.value.charAt(1);
+            //play the step and deactivate board while wwaiting for evaluatin
             playStep(stepId);
             deactivateBoard();
+
             setTimeout(function(stepId) {
                 cleanStep(stepId);
                 //check if the clicked button matches the right position in the sequence
                 if (!isStepOk(stepId)) {
-                    //if it doesn't, replay sequence
-                    playFail();
-                    if (restartGame) {
-                        restart();
-                    } else {
-                        deactivateBoard();
-                        order = 0;
-                        playSequence();
-                    }
+                    handleStepWrong();
                 } else {
-                    $("#message").text("");
-                    //if it does, increase position in sequence and continue as before
-                    order++;
-                    activateBoard();
-                    //if the sequence is over, increase positions number and continue game
-                    if (order === count) {
-                        count++;
-                        deactivateBoard();
-                        order = 0;
-                        continueGame();
-                    }
+                    handleStepOk();
                 }
             }.bind(null, stepId), 600);
 
         }
     });
+
     $('#strict').change(function() {
         if ($(this).is(":checked")) {
             restartGame = true;
@@ -144,6 +130,7 @@
         try {
             var sound = $("#fail")[0];
             sound.play();
+            $("#message").css("color", "red");
             $("#message").text("Try again!");
         } catch (ex) {
             // console.log(ex);
@@ -152,6 +139,37 @@
     //helper functions
     function randomIntFromInterval(min, max) {
         return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    function handleStepOk() {
+        //take into account the starting at zero counting 
+        if ((order + 1) === WIN_CONDITION) {
+            win();
+        } else {
+            $("#message").text("");
+            //if it does, increase position in sequence and continue as before
+            order++;
+            activateBoard();
+            //if the sequence is over, increase positions number and continue game
+            if (order === count) {
+                count++;
+                deactivateBoard();
+                order = 0;
+                continueGame();
+            }
+        }
+    }
+
+    function handleStepWrong() {
+        //if it doesn't, replay sequence
+        playFail();
+        if (restartGame) {
+            restart();
+        } else {
+            deactivateBoard();
+            order = 0;
+            playSequence();
+        }
     }
 
     function restart() {
@@ -164,5 +182,11 @@
         cleanStep();
         continueGame();
 
+    }
+
+    function win() {
+        restart();
+        $("#message").css("color", "green");
+        $("#message").text("You Won !");
     }
 })();

@@ -8,6 +8,8 @@
     var interval = 0;
     var restartGame = false;
     var WIN_CONDITION = 20;
+    var wasClicked = false;
+    var checkMove = 0;
 
     function playSequence() {
         index = 0;
@@ -62,6 +64,8 @@
         }
     });
 
+
+
     $('#strict').change(function() {
         if ($(this).is(":checked")) {
             restartGame = true;
@@ -106,11 +110,20 @@
     function activateBoard() {
         $(".block").css("cursor", "pointer");
         allowClick = true;
+        //wait 5 seconds for a click 
+        wasClicked = false;
+        checkMove = setTimeout(function() {
+            if (!wasClicked) {
+                handleStepWrong();
+            }
+        }, 5000);
     }
 
     function deactivateBoard() {
         $(".block").css("cursor", "default");
         allowClick = false;
+        wasClicked = true;
+        clearTimeout(checkMove);
     }
 
     function cleanStep() {

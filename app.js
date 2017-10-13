@@ -6,13 +6,23 @@
     var currentlyLit;
     var allowClick = false;
     var currentlyPlayingPromise;
+    var index = 0;
 
     function playSequence() {
-        for (var i = 0; i < sequence.length; i++) {
-            playStep(sequence[i]);
-            setTimeout(function() { cleanStep() }, 2000);
-        }
-        allowClick = true;
+        index = 0;
+        interval = setInterval(function() {
+            cleanStep(sequence[index]);
+            //clean previous step to take into consideration last interval run  
+            cleanStep(sequence[index - 1]);
+            var play = setTimeout(function(id) {
+                playStep(id);
+                index++;
+            }.bind(null, sequence[index]), 300);
+            if (index >= sequence.length) {
+                activateBoard();
+                clearInterval(interval);
+            }
+        }, 800);
     }
 
     function addStep() {
@@ -21,11 +31,11 @@
 
 
     function playStep(step) {
-        playSound(step);
+        // playSound(step); 
         litBlock(step);
     }
 
-    function okStep(id) {
+    function isStepOk(id) {
         if (id == sequence[order]) {
             return true;
         }
@@ -37,19 +47,29 @@
         if (allowClick) {
             var stepId = $(this)[0].attributes.id.value.charAt(1);
             playStep(stepId);
-            if (!okStep(stepId)) {
-                allowClick = false;
-                order = 0;
-                playSequence();
-            } else {
-                order++;
-                if (order === count) {
-                    count++;
-                    allowClick = false;
+            allowClick = false;
+            setTimeout(function(stepId) {
+                cleanStep(stepId);
+                //check if the clicked button matches the right position in the sequence
+                if (!isStepOk(stepId)) {
+                    //if it doesn't, replay sequence
+                    deactivateBoard();
                     order = 0;
-                    continueGame();
+                    playSequence();
+                } else {
+                    //if it does, increase position in sequence and continue as before
+                    order++;
+                    activateBoard();
+                    //if the sequence is over, increase positions number and continue game
+                    if (order === count) {
+                        count++;
+                        deactivateBoard();
+                        order = 0;
+                        continueGame();
+                    }
                 }
-            }
+            }.bind(null, stepId), 600);
+
         }
     });
     $("#start").on("click", function(e) {
@@ -80,18 +100,25 @@
         var sound = $("#a" + id)[0];
         currentlyPlaying = sound;
         currentlyPlayingPromise = sound.play();
+        //  sound.play();
     }
 
     function litBlock(id) {
-        if (currentlyLit) {
-            currentlyLit.css("filter", "brightness(100%)");
-        }
         var block = $("#b" + id);
-        currentlyLit = block;
-        block.css("filter", "brightness(150%)");
+        block.css("filter", "brightness(170%)");
     }
 
-    function cleanStep() {
+    function activateBoard() {
+        $(".block").css("cursor", "pointer");
+        allowClick = true;
+    }
+
+    function deactivateBoard() {
+        $(".block").css("cursor", "default");
+        allowClick = false;
+    }
+
+    function cleanStep(id) {
         if (currentlyPlayingPromise !== undefined) {
             currentlyPlayingPromise.then(function() {
                     currentlyPlaying.pause();
@@ -101,9 +128,8 @@
                     console.log(error);
                 });
         }
-        if (currentlyLit) {
-            currentlyLit.css("filter", "brightness(100%)");
-        }
+        var block = $("#b" + id);
+        block.css("filter", "brightness(100%)");
     }
     //helper functions
     function randomIntFromInterval(min, max) {

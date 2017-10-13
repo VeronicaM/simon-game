@@ -2,25 +2,23 @@
     var sequence = [];
     var count = 0;
     var order = 0;
-    var currentlyPlaying;
-    var currentlyLit;
     var allowClick = false;
-    var currentlyPlayingPromise;
     var index = 0;
+    var play = 0;
+    var interval = 0;
 
     function playSequence() {
         index = 0;
         interval = setInterval(function() {
-            cleanStep(sequence[index]);
-            //clean previous step to take into consideration last interval run  
-            cleanStep(sequence[index - 1]);
-            var play = setTimeout(function(id) {
+            cleanStep();
+            play = setTimeout(function(id) {
                 playStep(id);
                 index++;
             }.bind(null, sequence[index]), 300);
             if (index >= sequence.length) {
                 activateBoard();
                 clearInterval(interval);
+                clearTimeout(play);
             }
         }, 800);
     }
@@ -28,7 +26,6 @@
     function addStep() {
         sequence.push(randomIntFromInterval(1, 4));
     }
-
 
     function playStep(step) {
         playSound(step);
@@ -75,8 +72,12 @@
         }
     });
     $("#start").on("click", function(e) {
-        count = 1;
-        continueGame();
+        if (sequence.length === 0) {
+            count = 1;
+            continueGame();
+        } else {
+            restart();
+        }
     });
 
     function continueGame() {
@@ -114,14 +115,17 @@
         allowClick = false;
     }
 
-    function cleanStep(id) {
+    function cleanStep() {
         for (var i = 1; i <= 4; i++) {
             var sound = $("#a" + i)[0];
             sound.pause();
             sound.currentTime = 0;
         }
-        var block = $("#b" + id);
-        block.css("filter", "brightness(100%)");
+        for (var i = 1; i <= 4; i++) {
+            var block = $("#b" + i);
+            block.css("filter", "brightness(100%)");
+        }
+
     }
 
     function playFail() {
@@ -136,5 +140,17 @@
     //helper functions
     function randomIntFromInterval(min, max) {
         return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    function restart() {
+        count = 1;
+        order = 0;
+        sequence = [];
+        clearInterval(interval);
+        clearTimeout(play);
+        index = 0;
+        cleanStep();
+        continueGame();
+
     }
 })();

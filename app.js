@@ -31,7 +31,7 @@
 
 
     function playStep(step) {
-        // playSound(step); 
+        playSound(step);
         litBlock(step);
     }
 
@@ -54,9 +54,11 @@
                 if (!isStepOk(stepId)) {
                     //if it doesn't, replay sequence
                     deactivateBoard();
+                    playFail();
                     order = 0;
                     playSequence();
                 } else {
+                    $("#message").text("");
                     //if it does, increase position in sequence and continue as before
                     order++;
                     activateBoard();
@@ -88,19 +90,13 @@
     }
 
     function playSound(id) {
-        if (currentlyPlayingPromise !== undefined) {
-            currentlyPlayingPromise.then(function() {
-                    currentlyPlaying.pause();
-                    currentlyPlaying.currentTime = 0;
-                })
-                .catch(function(error) {
-                    console.log(error);
-                });
+        try {
+            var sound = $("#a" + id)[0];
+            sound.play();
+        } catch (ex) {
+            // console.log(ex);
         }
-        var sound = $("#a" + id)[0];
-        currentlyPlaying = sound;
-        currentlyPlayingPromise = sound.play();
-        //  sound.play();
+
     }
 
     function litBlock(id) {
@@ -119,17 +115,23 @@
     }
 
     function cleanStep(id) {
-        if (currentlyPlayingPromise !== undefined) {
-            currentlyPlayingPromise.then(function() {
-                    currentlyPlaying.pause();
-                    currentlyPlaying.currentTime = 0;
-                })
-                .catch(function(error) {
-                    console.log(error);
-                });
+        for (var i = 1; i <= 4; i++) {
+            var sound = $("#a" + i)[0];
+            sound.pause();
+            sound.currentTime = 0;
         }
         var block = $("#b" + id);
         block.css("filter", "brightness(100%)");
+    }
+
+    function playFail() {
+        try {
+            var sound = $("#fail")[0];
+            sound.play();
+            $("#message").text("Try again!");
+        } catch (ex) {
+            // console.log(ex);
+        }
     }
     //helper functions
     function randomIntFromInterval(min, max) {
